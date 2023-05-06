@@ -2,43 +2,65 @@ package modelparser
 
 import (
 	"errors"
-	"gormy/lib/structs"
+	"fmt"
+	"gormy/lib/types"
+	"reflect"
 	"strings"
 )
 
-func ParseColumn(columnTag string, structName string) (structs.Column, error) {
+func ParseColumn(columnTag string, structName string, goType reflect.Type, relationPrefix string, relationCount int) (*types.Column, *types.Relation, error) {
 
-	column := structs.Column{}
+	IsRelation := false
+	column := types.Column{}
+	relation := types.Relation{}
+	var err error
 
 	if columnTag == "" {
-		return column, errors.New("ParseColumnError: No data type provided.")
+		return nil, nil, errors.New("ParseColumnError: No data type provided.")
 	}
 
 	tagItems := strings.Split(strings.Split(strings.Split(columnTag, "gormy:\"")[1], "\"")[0], ",")
 
 	for _, tagItem := range tagItems {
-		if strings.Contains(tagItem, ":") {
+		if strings.Contains(tagItem, ":") && !IsRelation {
 			name := strings.Split(tagItem, ":")[0]
 			value := strings.Split(tagItem, ":")[1]
 
 			switch name {
 			case "name":
-				column.Name = value
+				column.Name = strings.ToLower(value)
+			case "relation":
+				IsRelation = true
+
+				relation, err = ParseRelation(columnTag, structName, goType, fmt.Sprintf("%s_jk%d", relationPrefix, relationCount+1))
+
+				relation.JoinKey = fmt.Sprintf("%s_jk%d", relationPrefix, relationCount+1)
+
+				if err != nil {
+					return nil, nil, err
+				}
 			default:
-				return column, errors.New("ParseColumnError: Unidentified option.")
+				return &column, nil, fmt.Errorf("ParseColumnError: Unidentified option - %s", name)
 			}
 		} else {
 			column.DataType = tagItem
 		}
 	}
 
-	if column.DataType == "" {
-		return column, errors.New("ParseColumnError: No data type provided.")
+	if IsRelation {
+		return nil, &relation, nil
+	} else {
+		if column.DataType == "" {
+			return nil, nil, errors.New("ParseColumnError: No data type provided.")
+		}
+
+		column.StructName = structName
+
+		if column.Name == "" {
+			column.Name = structName
+		}
+
+		return &column, nil, nil
 	}
 
-	if column.Name == "" {
-		column.Name = structName
-	}
-
-	return column, nil
 }

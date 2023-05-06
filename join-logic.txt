@@ -1,0 +1,13 @@
+join types - 
+    one to one
+    one to many
+    many to many
+
+for each type -
+    modify select - row number column naming etc
+    modify rowsToJson - build sub json etc
+
+rowsToJson -> SqlParser
+
+make relation into a generic, implementation for each join type 
+    - what to do with the leftmost table?

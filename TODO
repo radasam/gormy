@@ -1,0 +1,13 @@
+Joins
+   x Parse local column into Relation data type
+   x Parse related columns into local struct
+   x rename columns with join key
+   x extend json parser to pull out joined columns
+   x one to one
+   x one to many - row number ?
+   many to many - row number ?
+   allow join types to be extended
+   
+Migrations
+Model Existing Database
+Updates
