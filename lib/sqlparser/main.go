@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"gormy/lib/joins"
+	"strconv"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ type sqlParser[T any] struct {
 	rows   sql.Rows
 	joins  []joins.Join
 	values map[int]map[string]interface{}
+	origin joins.Join
 }
 
 func (sqlparser *sqlParser[T]) Parser(rowNumber int, name string, column *sql.ColumnType, sqlType interface{}) {
@@ -52,9 +54,7 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 	}
 
 	count := len(columnTypes)
-	lastRowNumber := 0
 	rowNumber := 0
-	repeatRowNumber := 0
 
 	for sqlparser.rows.Next() {
 
@@ -84,49 +84,32 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 
 		if columnTypes[0].Name() == "jk0__join_row" {
 			if z, ok := (scanArgs[0]).(*sql.NullInt64); ok {
-				rowNumber = int(z.Int64)
+				rowNumber = int(z.Int64) - 1
 			}
-		} else {
-			rowNumber += 1
 		}
 
-		if lastRowNumber == rowNumber {
-			repeatRowNumber += 1
-		} else {
-			lastRowNumber = rowNumber
-			repeatRowNumber = 0
-		}
+		// if lastRowNumber == rowNumber {
+		// 	repeatRowNumber += 1
+		// } else {
+		// 	lastRowNumber = rowNumber
+		// 	repeatRowNumber = 0
+		// }
 
-		if _, ok := sqlparser.values[rowNumber]; !ok {
-			sqlparser.values[rowNumber] = map[string]interface{}{}
-		}
+		// if _, ok := sqlparser.values[rowNumber]; !ok {
+		// 	sqlparser.values[rowNumber] = map[string]interface{}{}
+		// }
 
 		for i, column := range columnTypes {
-			if column.Name() != "jk0__join_row" {
-				key := strings.Split(column.Name(), "__")[0]
-				name := strings.Split(column.Name(), "__")[1]
 
-				if key == "jk0" {
-					sqlparser.Parser(rowNumber, name, column, scanArgs[i])
-				} else {
-					for _, join := range sqlparser.joins {
-						join.Parser(rowNumber, repeatRowNumber, key, name, column, scanArgs[i])
-					}
-				}
-			}
-
-		}
-		for _, v := range sqlparser.joins {
-			sqlparser.values[rowNumber][v.JoinName()] = v.Values(rowNumber)
+			key := strings.Split(column.Name(), "__")[0]
+			name := strings.Split(column.Name(), "__")[1]
+			sqlparser.origin.Parse(strconv.Itoa(rowNumber), key, name, column, scanArgs[i])
 		}
 	}
 
-	values := make([]map[string]interface{}, 0, len(sqlparser.values))
-	for k := range sqlparser.values {
-		values = append(values, sqlparser.values[k])
-	}
+	values := sqlparser.origin.Values()
 
-	z, err := json.Marshal(values)
+	z, err := json.Marshal(&values)
 
 	if err != nil {
 		return "", err
@@ -152,9 +135,9 @@ func (sqlparser *sqlParser[T]) Parse(rows *T) error {
 
 }
 
-func NewSqlParser[T any](rowStruct T, joins []joins.Join, rows sql.Rows) sqlParser[T] {
+func NewSqlParser[T any](rowStruct T, origin joins.Join, rows sql.Rows) sqlParser[T] {
 	return sqlParser[T]{
-		joins: joins,
-		rows:  rows,
+		origin: origin,
+		rows:   rows,
 	}
 }

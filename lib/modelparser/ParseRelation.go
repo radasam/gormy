@@ -1,6 +1,7 @@
 package modelparser
 
 import (
+	"fmt"
 	"gormy/lib/types"
 	"reflect"
 	"strings"
@@ -10,6 +11,7 @@ func ParseRelation(relationTag string, structName string, relationModel reflect.
 	relationCount := 0
 	relation := types.Relation{}
 	relationColumns := []types.Column{}
+	nestedRelations := []types.Relation{}
 	tagData := map[string]string{}
 
 	tagItems := strings.Split(strings.Split(strings.Split(relationTag, "gormy:\"")[1], "\"")[0], ",")
@@ -63,11 +65,22 @@ func ParseRelation(relationTag string, structName string, relationModel reflect.
 			}
 
 			relation.TableName = tableName
+		} else {
+			relationCount += 1
+			nestedRelation, err := ParseRelation(string(relationModel.Field(i).Tag), relationModel.Field(i).Name, relationModel.Field(i).Type, fmt.Sprintf("%s_jk%d", relationPrefix, relationCount))
+			nestedRelation.JoinKey = fmt.Sprintf("%s_jk%d", relationPrefix, relationCount)
+
+			if err != nil {
+				return types.Relation{}, err
+			}
+
+			nestedRelations = append(nestedRelations, nestedRelation)
 		}
 	}
 
 	relation.Name = structName
 	relation.Columns = relationColumns
+	relation.Relations = nestedRelations
 
 	return relation, nil
 }

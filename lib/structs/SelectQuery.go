@@ -37,27 +37,53 @@ func (query *SelectQuery[T]) Where(expr string, columnName string, value string)
 	return query
 }
 
+func (query *SelectQuery[T]) relationByName(relationName string, joinName string) (string, types.Relation, joins.Join, error) {
+
+	joinType, err := joins.Joins.ByName(joinName)
+
+	if err != nil {
+		return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+	}
+
+	for _, relation := range query.relations {
+		if relation.Name == relationName {
+			join := joinType(relation.JoinKey, relation.Name, query.tableName, relation.Columns, relation.TableName, relation.ForeignKey)
+			query.origin.OnJoin(join)
+			return query.origin.JoinKey(), relation, join, nil
+		}
+	}
+
+	for _, ar := range query.activeRelations {
+		relation, err := ar.Relation.RelationByName(relationName)
+		join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
+		if err != nil {
+			return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+		}
+
+		ar.Join.OnJoin(join)
+
+		return ar.Join.JoinKey(), relation, join, nil
+	}
+
+	return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+}
+
 func (query *SelectQuery[T]) Relation(relationName string, joinName string) *SelectQuery[T] {
 
-	relation, err := query.relationByName(relationName)
+	originKey, relation, join, err := query.relationByName(relationName, joinName)
 
 	if err != nil {
 		println(err.Error())
 	}
 
-	query.origin.OnJoin()
-
-	join, err := joins.Joins.ByName(joinName)
-
 	activeRelation := ActiveRelation{
 		Relation: relation,
-		Join:     join(relation.JoinKey, relation.Name, query.tableName, relation.Columns, relation.TableName),
+		Join:     join,
 	}
 
 	query.activeRelations = append(query.activeRelations, activeRelation)
 
-	query.queryString += activeRelation.Join.JoinExpr(relation)
-	// query.queryString += fmt.Sprintf("%s JOIN $%s__table_name$ %s ON %s.%s = %s.%s", relation.How, relation.JoinKey, relation.JoinKey, "jk0", relation.Key, relation.JoinKey, relation.ForeignKey)
+	query.queryString += activeRelation.Join.JoinExpr(originKey, relation)
 
 	return query
 }
@@ -91,7 +117,11 @@ func (query *SelectQuery[T]) Exec() []T {
 		queryString = strings.ReplaceAll(queryString, fmt.Sprintf("$%s__table_name$", relation.Join.JoinKey()), relation.Join.TableExpr())
 	}
 
-	queryString += "\r\nORDER BY jk0__join_row"
+	queryString += "ORDER BY jk0__join_row"
+
+	for _, relation := range query.activeRelations {
+		queryString += fmt.Sprintf(", %s__join_row", relation.Join.JoinKey())
+	}
 
 	rows, err := engine.DB().Query(queryString)
 
@@ -105,26 +135,9 @@ func (query *SelectQuery[T]) Exec() []T {
 		joins = append(joins, ar.Join)
 	}
 
-	sqlParser := sqlparser.NewSqlParser(query.Rows, joins, *rows)
+	sqlParser := sqlparser.NewSqlParser(query.Rows, query.origin, *rows)
 
 	sqlParser.Parse(&query.Rows)
-
-	// keys := make([]string, 0, len(query.relations))
-	// names := make([]string, 0, len(query.relations))
-	// // for k := range query.relationMap {
-	// // 	keys = append(keys, k)
-	// // 	names = append(names, query.relationMap[k].Name)
-	// // }
-
-	// jsonString, err := utils.RowsToJson(*rows, keys, names, map[string]string{"jk1": "onetomany"})
-
-	// println(jsonString)
-
-	// json.Unmarshal([]byte(jsonString), &query.Rows)
-
-	// if err != nil {
-	// 	println(err.Error())
-	// }
 
 	return query.Rows
 }

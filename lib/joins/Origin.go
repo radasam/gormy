@@ -13,6 +13,7 @@ type origin struct {
 	columns        []types.Column
 	derivedColumns []string
 	tableExpr      string
+	parser         sqlValueParser
 }
 
 func (_origin origin) Columns() []types.Column {
@@ -41,53 +42,33 @@ func (_origin *origin) TableExpr() string {
 	return _origin.tableExpr
 }
 
-func (_origin *origin) JoinExpr(relation types.Relation) string {
+func (_origin *origin) JoinExpr(originKey string, relation types.Relation) string {
 	return ""
 }
-
-func (_origin origin) Parser(rowNumber int, repeatRowNumber int, key string, name string, column *sql.ColumnType, sqlType interface{}) {
-
-	if key == _origin.joinkey {
-		if _, ok := _origin.values[rowNumber]; !ok {
-			_origin.values[rowNumber] = map[string]interface{}{}
-		}
-		if z, ok := (sqlType).(*sql.NullBool); ok {
-			_origin.values[rowNumber][name] = z.Bool
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullString); ok {
-			_origin.values[rowNumber][name] = z.String
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullInt64); ok {
-			_origin.values[rowNumber][name] = z.Int64
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullFloat64); ok {
-			_origin.values[rowNumber][name] = z.Float64
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullInt32); ok {
-			_origin.values[rowNumber][name] = z.Int32
-			return
-		}
-
-		_origin.values[rowNumber][name] = sqlType
-
-	}
+func (_origin *origin) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+	_origin.parser.Parse(parentRow, key, name, column, sqlType)
 }
-
-func (_origin *origin) OnJoin() {
+func (_origin *origin) OnJoin(join Join) {
 	_origin.tableExpr = fmt.Sprintf("(select *, row_number () over() as jk0__join_row from %s)", _origin.tableExpr)
 	_origin.derivedColumns = append(_origin.derivedColumns, "jk0__join_row")
+	_origin.parser.OnJoin(join)
 }
 
-func (_origin origin) Values(rowNumber int) interface{} {
-	return _origin.values
+func (_origin origin) Row(parentRow string) interface{} {
+	return _origin.parser.Row(parentRow)
+}
+
+func (_origin origin) Values() interface{} {
+	mapValues := _origin.parser.Values()
+	values := []interface{}{}
+
+	if _, ok := mapValues.(map[string]map[string]interface{}); ok {
+		for _, v := range mapValues.(map[string]map[string]interface{}) {
+			values = append(values, v)
+		}
+	}
+
+	return values
 }
 
 func (_origin origin) JoinName() string {
@@ -105,5 +86,6 @@ func Origin(joinName string, columns []types.Column, tableExpr string) Join {
 		joinName:  joinName,
 		columns:   columns,
 		tableExpr: tableExpr,
+		parser:    NewValueParser("jk0"),
 	}
 }

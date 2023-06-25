@@ -87,14 +87,3 @@ func (query *Query[T]) columnByName(columnName string) (types.Column, error) {
 
 	return types.Column{}, fmt.Errorf("Column doesnt exist")
 }
-
-func (query *Query[T]) relationByName(relationName string) (types.Relation, error) {
-
-	for _, relation := range query.relations {
-		if relation.Name == relationName {
-			return relation, nil
-		}
-	}
-
-	return types.Relation{}, fmt.Errorf("Relation doesnt exist")
-}

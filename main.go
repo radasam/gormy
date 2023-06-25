@@ -95,7 +95,46 @@ func main() {
 	// 	println(err.Error())
 	// }
 
-	funds := structs.Model(models.Funds{}).Query().Select().Relation("Instruments", "manytomany").Exec()
+	// funds := structs.Model(models.Funds{}).Query().Select().Relation("Instruments", "manytomany").Exec()
 
-	spew.Dump(funds[0].Instruments[0])
+	// spew.Dump(funds[0].Instruments[0])
+
+	// structs.Model(models.Users{}).Create().Exec()
+	// structs.Model(models.Orders{}).Create().Exec()
+	// structs.Model(models.Items{}).Create().Exec()
+
+	// items := []models.Items{
+	// 	{ItemId: "item-123", OrderId: "order-456", Name: "spoon"},
+	// 	{ItemId: "item-234", OrderId: "order-456", Name: "fork"},
+	// 	{ItemId: "item-345", OrderId: "order-789", Name: "knife"},
+	// 	{ItemId: "item-456", OrderId: "order-789", Name: "whisk"},
+	// 	{ItemId: "item-567", OrderId: "order-123", Name: "spatula"},
+	// 	{ItemId: "item-678", OrderId: "order-123", Name: "ladle"},
+	// 	{ItemId: "item-789", OrderId: "order-123", Name: "tongs"},
+	// 	{ItemId: "item-890", OrderId: "order-234", Name: "grater"},
+	// 	{ItemId: "item-901", OrderId: "order-234", Name: "peeler"},
+	// 	{ItemId: "item-012", OrderId: "order-234", Name: "can opener"},
+	// }
+
+	// structs.Model(models.Items{}).Query().Insert(&items).Exec()
+
+	// orders := []models.Orders{
+	// 	{OrderId: "order-123", UserId: "user-001", Timestamp: 1620418507},
+	// 	{OrderId: "order-234", UserId: "user-001", Timestamp: 1620418523},
+	// 	{OrderId: "order-456", UserId: "user-002", Timestamp: 1620418534},
+	// 	{OrderId: "order-789", UserId: "user-002", Timestamp: 1620418551},
+	// }
+
+	// structs.Model(models.Orders{}).Query().Insert(&orders).Exec()
+
+	// users := []models.Users{
+	// 	{UserId: "user-001", UserName: "Gordon Ramsay"},
+	// 	{UserId: "user-002", UserName: "Julia Child"},
+	// }
+
+	// structs.Model(models.Users{}).Query().Insert(&users).Exec()
+
+	myUsers := structs.Model(models.Users{}).Query().Select().Relation("Orders", "onetomany").Relation("Items", "onetomany").Exec()
+
+	spew.Dump(myUsers[0].Orders[0])
 }

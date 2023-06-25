@@ -4,7 +4,7 @@ import "gormy/lib/structs"
 
 type Items struct {
 	baseModel structs.BaseModel `gormy:"items"`
-	Id        string            `gormy:"varchar"`
+	ItemId    string            `gormy:"varchar,name:item_id"`
+	OrderId   string            `gormy:"varchar,name:order_id"`
 	Name      string            `gormy:"varchar"`
-	Orders    []Orders          `gormy:"relation:onetomany,how:left,on:id=item_id"`
 }

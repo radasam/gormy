@@ -14,6 +14,8 @@ type oneToOne struct {
 	derivedColumns []string
 	joinsTo        string
 	tableExpr      string
+	parser         sqlValueParser
+	parentJoinRow  string
 }
 
 func (onetoone oneToOne) Columns() []types.Column {
@@ -42,11 +44,13 @@ func (onetoone oneToOne) TableExpr() string {
 	return onetoone.tableExpr
 }
 
-func (onetoone oneToOne) JoinExpr(relation types.Relation) string {
-	return ""
+func (onetoone oneToOne) JoinExpr(originKey string, relation types.Relation) string {
+	return fmt.Sprintf("%s JOIN $%s__table_name$ %s ON %s.%s = %s.%s\r\n", relation.How, relation.JoinKey, relation.JoinKey, originKey, relation.Key, relation.JoinKey, relation.ForeignKey)
 }
 
-func (onetoone oneToOne) OnJoin() {
+func (onetoone oneToOne) OnJoin(join Join) {
+	onetoone.tableExpr = fmt.Sprintf("(select *, row_number () over(partition by %s) as %s__join_row from %s)", onetoone.parentJoinRow, onetoone.joinkey, onetoone.tableExpr)
+	onetoone.parser.OnJoin(join)
 }
 
 func (onetoone oneToOne) Parser(rowNumber int, repeatRowNumber int, key string, name string, column *sql.ColumnType, sqlType interface{}) {
@@ -85,12 +89,16 @@ func (onetoone oneToOne) Parser(rowNumber int, repeatRowNumber int, key string, 
 	}
 }
 
-func (onetoone oneToOne) onJoin() {
-	onetoone.tableExpr = fmt.Sprintf("(select *, row_number () over() as %s__join_row from %s)", onetoone.joinkey, onetoone.tableExpr)
+func (onetoone oneToOne) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+	onetoone.parser.Parse(parentRow, key, name, column, sqlType)
 }
 
-func (onetoone oneToOne) Values(rowNumber int) interface{} {
-	return onetoone.values
+func (onetoone oneToOne) Row(parentRow string) interface{} {
+	return onetoone.parser.Row(parentRow)
+}
+
+func (onetoone oneToOne) Values() interface{} {
+	return onetoone.parser.Values()
 }
 
 func (onetoone oneToOne) JoinName() string {
@@ -101,13 +109,15 @@ func (onetoone oneToOne) JoinKey() string {
 	return onetoone.joinkey
 }
 
-func OneToOne(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string) Join {
+func OneToOne(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join {
 	return oneToOne{
-		joinkey:   joinkey,
-		values:    map[int]map[string]interface{}{},
-		joinName:  joinName,
-		columns:   columns,
-		joinsTo:   joinsTo,
-		tableExpr: tableExpr,
+		joinkey:       joinkey,
+		values:        map[int]map[string]interface{}{},
+		joinName:      joinName,
+		columns:       columns,
+		joinsTo:       joinsTo,
+		tableExpr:     tableExpr,
+		parser:        NewValueParser(joinkey),
+		parentJoinRow: parentJoinRow,
 	}
 }

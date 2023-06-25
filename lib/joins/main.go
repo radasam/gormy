@@ -10,23 +10,24 @@ type Join interface {
 	Columns() []types.Column
 	ColumnExpr() string
 	TableExpr() string
-	JoinExpr(relation types.Relation) string
-	Parser(rowNumber int, repeatRowNumber int, key string, name string, column *sql.ColumnType, sqlType interface{})
-	Values(rowNumber int) interface{}
+	JoinExpr(originKey string, relation types.Relation) string
+	Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{})
+	Row(parentRow string) interface{}
+	Values() interface{}
 	JoinName() string
 	JoinKey() string
-	OnJoin()
+	OnJoin(join Join)
 }
 
 type joins struct {
-	JoinMap map[string]func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string) Join
+	JoinMap map[string]func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join
 }
 
-func (joins *joins) Register(name string, join func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string) Join) {
+func (joins *joins) Register(name string, join func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join) {
 	joins.JoinMap[name] = join
 }
 
-func (joins *joins) ByName(name string) (func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string) Join, error) {
+func (joins *joins) ByName(name string) (func(joinKey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join, error) {
 	for k := range joins.JoinMap {
 		if k == name {
 			return joins.JoinMap[k], nil
@@ -41,7 +42,7 @@ var Joins *joins
 
 func Init() {
 	Joins = &joins{
-		JoinMap: map[string]func(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string) Join{},
+		JoinMap: map[string]func(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join{},
 	}
 	Joins.Register("onetoone", OneToOne)
 	Joins.Register("onetomany", OneToMany)

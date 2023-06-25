@@ -8,4 +8,5 @@ import (
 type ActiveRelation struct {
 	Relation types.Relation
 	Join     joins.Join
+	JoinKey  string
 }
