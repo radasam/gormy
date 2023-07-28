@@ -1,11 +1,8 @@
 package main
 
 import (
+	"gormy/lib/importer"
 	"gormy/lib/joins"
-	"gormy/lib/structs"
-	"gormy/test/models"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
@@ -134,7 +131,16 @@ func main() {
 
 	// structs.Model(models.Users{}).Query().Insert(&users).Exec()
 
-	myUsers := structs.Model(models.Users{}).Query().Select().Relation("Orders", "onetomany").Relation("Items", "onetomany").Exec()
+	// myUsers := structs.Model(models.Users{}).Query().Select().Relation("Orders", "onetomany").Relation("Items", "onetomany").Exec()
 
-	spew.Dump(myUsers[0].Orders[0])
+	// spew.Dump(myUsers[0].Orders[0])
+
+	myImporter := importer.NewImporter("public", "./test-import")
+
+	err := myImporter.Import()
+
+	if err != nil {
+		println(err.Error())
+	}
+
 }

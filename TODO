@@ -7,15 +7,16 @@ Joins
    x one to many - row number ?
    x many to many - row number ?
    x allow join types to be extended
-   join to join 
-      - nest parser logic
+   x join to join 
+      - nest parser logic 
          - save join row name in join struct
          - use join row to look up row number i.e. list index
       - where should parser sit?
          - should join struct get nested so join.parser calls itself?
-   
-Migrations
-Model Existing Database
-Updates
 
-LazyLoading 
+Imports x
+Migrations
+Updates
+Imports - Joins
+
+LazyLoading (dont parse until specific model is accessed)
