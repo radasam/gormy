@@ -5,8 +5,13 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"github.com/radasam/gormy/internal/joins"
 	// "github.com/radasam/gormy/internal/joins"
 )
+
+func init() {
+	joins.Init()
+}
 
 var gc *GormyClient
 
