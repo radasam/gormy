@@ -1,9 +1,9 @@
-package engine
+package gormy
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/lib/joins"
-	"github.com/radasam/gormy/lib/types"
+	"github.com/radasam/gormy/pkg/internal/joins"
+	"github.com/radasam/gormy/pkg/internal/types"
 )
 
 type Table[T any] struct {

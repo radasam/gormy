@@ -1,4 +1,4 @@
-package engine
+package gormy
 
 type InsertQuery[T any] struct {
 	Query[T]

@@ -1,8 +1,8 @@
-package engine
+package gormy
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/lib/fileutils"
+	"github.com/radasam/gormy/pkg/internal/fileutils"
 )
 
 type importedColumn struct {

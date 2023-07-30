@@ -1,12 +1,12 @@
 package models
 
 import (
-	"github.com/radasam/gormy/lib/engine"
+	"github.com/radasam/gormy/pkg/gormy"
 )
 
 type MySecondTable struct {
-	baseModel engine.BaseModel `gormy:"mysecondtable"`
-	Name      string           `gormy:"varchar"`
-	Age       int              `gormy:"int,name:age"`
-	Color     string           `gormy:"varchar"`
+	baseModel gormy.BaseModel `gormy:"mysecondtable"`
+	Name      string          `gormy:"varchar"`
+	Age       int             `gormy:"int,name:age"`
+	Color     string          `gormy:"varchar"`
 }

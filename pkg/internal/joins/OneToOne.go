@@ -3,7 +3,7 @@ package joins
 import (
 	"database/sql"
 	"fmt"
-	"github.com/radasam/gormy/lib/types"
+	"github.com/radasam/gormy/pkg/internal/types"
 )
 
 type oneToOne struct {

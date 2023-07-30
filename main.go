@@ -1,25 +1,17 @@
 package main
 
-import (
-	"fmt"
-	"github.com/radasam/gormy/lib/engine"
-	"github.com/radasam/gormy/lib/joins"
-	"github.com/radasam/gormy/test/models"
-
-	"github.com/davecgh/go-spew/spew"
-)
+import ()
 
 func main() {
 
-	joins.Init()
-	_, err := engine.NewGormyClient(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		"postgres", "postgrespw",
-		"localhost", "55000", "postgres"))
+	// _, err := gormy.NewGormyClient(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	// 	"postgres", "postgrespw",
+	// 	"localhost", "55000", "postgres"))
 
-	if err != nil {
-		println(err.Error())
-		return
-	}
+	// if err != nil {
+	// 	println(err.Error())
+	// 	return
+	// }
 	// myTable := models.MyTable{
 	// 	Name: "Sam",
 	// 	Age:  26,
@@ -143,9 +135,9 @@ func main() {
 
 	// structs.Model(models.Users{}).Query().Insert(&users).Exec()
 
-	myUsers := engine.Model(models.Users{}).Query().Select().Relation("Orders", "onetomany").Relation("Items", "onetomany").Exec()
+	// // myUsers := engine.Model(models.Users{}).Query().Select().Relation("Orders", "onetomany").Relation("Items", "onetomany").Exec()
 
-	spew.Dump(myUsers[0].Orders[0])
+	// // spew.Dump(myUsers[0].Orders[0])
 
 	// myImporter := engine.NewImporter("public", "./test-import")
 

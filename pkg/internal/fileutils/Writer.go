@@ -20,7 +20,7 @@ func NewWriter(filepath string, modelName string) (*writer, error) {
 
 	file.WriteString("package models\r\n")
 	file.WriteString("\r\n")
-	file.WriteString(`import "github.com/radasam/gormy/lib/structs"`)
+	file.WriteString(`import "github.com/radasam/gormy/pkg/internal/structs"`)
 	file.WriteString("\r\n")
 	file.WriteString(fmt.Sprintf("type %s struct {\r\n", modelName))
 	file.WriteString(fmt.Sprintf("	baseModel   structs.BaseModel `gormy:\"%s\"`\r\n", modelName))
