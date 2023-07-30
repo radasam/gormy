@@ -1,10 +1,12 @@
 package models
 
-import "gormy/lib/structs"
+import (
+	"gormy/lib/engine"
+)
 
 type MyTable struct {
-	baseModel   structs.BaseModel `gormy:"mytable"`
-	Name        string            `gormy:"varchar"`
-	Age         int               `gormy:"int,name:age"`
-	SecondTable MySecondTable     `gormy:"relation:onetoone,how:left,on:name=name"`
+	baseModel   engine.BaseModel `gormy:"mytable"`
+	Name        string           `gormy:"varchar"`
+	Age         int              `gormy:"int,name:age"`
+	SecondTable MySecondTable    `gormy:"relation:onetoone,how:left,on:name=name"`
 }

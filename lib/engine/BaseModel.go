@@ -1,4 +1,4 @@
-package structs
+package engine
 
 import (
 	"gormy/lib/modelparser"

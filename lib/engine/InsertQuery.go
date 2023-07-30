@@ -1,4 +1,4 @@
-package structs
+package engine
 
 type InsertQuery[T any] struct {
 	Query[T]

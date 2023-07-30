@@ -14,7 +14,7 @@ Joins
       - where should parser sit?
          - should join struct get nested so join.parser calls itself?
 
-Imports x
+x Imports 
 Migrations
 Updates
 Imports - Joins

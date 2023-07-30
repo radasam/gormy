@@ -7,19 +7,29 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var gc *GormyClient
 
-func DB() *sql.DB {
-	if db == nil {
-		connStrnig := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-			"postgres", "postgrespw",
-			"localhost", "55000", "postgres")
-		// fmt.Println(connStrnig)
-		conn, err := sql.Open("postgres", connStrnig)
-		if err != nil {
-			panic(err)
-		}
-		return conn
+func db() *sql.DB {
+	if gc == nil {
+		panic("GormyClient has not been initialised!")
 	}
-	return db
+	return gc.conn
+}
+
+type GormyClient struct {
+	conn *sql.DB
+}
+
+func NewGormyClient(connString string) (*GormyClient, error) {
+	conn, err := sql.Open("postgres", connString)
+
+	if err != nil {
+		return nil, fmt.Errorf("connecting to db: %w", err)
+	}
+
+	gc = &GormyClient{
+		conn: conn,
+	}
+
+	return gc, nil
 }

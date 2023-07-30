@@ -1,8 +1,7 @@
-package structs
+package engine
 
 import (
 	"database/sql"
-	"gormy/lib/engine"
 )
 
 type Command struct {
@@ -12,7 +11,7 @@ type Command struct {
 func (command *Command) Exec() (sql.Result, error) {
 	queryString := command.queryString
 
-	result, err := engine.DB().Exec(queryString)
+	result, err := db().Exec(queryString)
 
 	return result, err
 }

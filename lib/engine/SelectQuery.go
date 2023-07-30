@@ -1,8 +1,7 @@
-package structs
+package engine
 
 import (
 	"fmt"
-	"gormy/lib/engine"
 	"gormy/lib/joins"
 	"gormy/lib/sqlparser"
 	"gormy/lib/types"
@@ -123,7 +122,7 @@ func (query *SelectQuery[T]) Exec() []T {
 		queryString += fmt.Sprintf(", %s__join_row", relation.Join.JoinKey())
 	}
 
-	rows, err := engine.DB().Query(queryString)
+	rows, err := db().Query(queryString)
 
 	if err != nil {
 		println(err.Error())
