@@ -3,7 +3,7 @@ package sqlparser
 import (
 	"database/sql"
 	"encoding/json"
-	"gormy/lib/joins"
+	"github.com/radasam/gormy/lib/joins"
 	"strconv"
 	"strings"
 )

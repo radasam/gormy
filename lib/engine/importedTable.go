@@ -2,7 +2,7 @@ package engine
 
 import (
 	"fmt"
-	"gormy/lib/fileutils"
+	"github.com/radasam/gormy/lib/fileutils"
 )
 
 type importedColumn struct {

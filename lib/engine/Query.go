@@ -2,9 +2,9 @@ package engine
 
 import (
 	"fmt"
-	"gormy/lib/joins"
-	"gormy/lib/types"
-	"gormy/lib/utils"
+	"github.com/radasam/gormy/lib/joins"
+	"github.com/radasam/gormy/lib/types"
+	"github.com/radasam/gormy/lib/utils"
 	"reflect"
 )
 

@@ -2,9 +2,9 @@ package engine
 
 import (
 	"fmt"
-	"gormy/lib/joins"
-	"gormy/lib/sqlparser"
-	"gormy/lib/types"
+	"github.com/radasam/gormy/lib/joins"
+	"github.com/radasam/gormy/lib/sqlparser"
+	"github.com/radasam/gormy/lib/types"
 	"strings"
 )
 

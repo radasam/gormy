@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"gormy/lib/joins"
-	"gormy/lib/types"
+	"github.com/radasam/gormy/lib/joins"
+	"github.com/radasam/gormy/lib/types"
 )
 
 type ActiveRelation struct {

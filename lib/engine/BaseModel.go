@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"gormy/lib/modelparser"
-	"gormy/lib/types"
+	"github.com/radasam/gormy/lib/modelparser"
+	"github.com/radasam/gormy/lib/types"
 	"reflect"
 )
 

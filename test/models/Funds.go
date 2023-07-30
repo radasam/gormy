@@ -1,7 +1,7 @@
 package models
 
 import (
-	"gormy/lib/engine"
+	"github.com/radasam/gormy/lib/engine"
 )
 
 type Funds struct {

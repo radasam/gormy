@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gormy/lib/engine"
-	"gormy/lib/joins"
-	"gormy/test/models"
+	"github.com/radasam/gormy/lib/engine"
+	"github.com/radasam/gormy/lib/joins"
+	"github.com/radasam/gormy/test/models"
 
 	"github.com/davecgh/go-spew/spew"
 )

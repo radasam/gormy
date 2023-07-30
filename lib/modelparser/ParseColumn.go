@@ -3,7 +3,7 @@ package modelparser
 import (
 	"errors"
 	"fmt"
-	"gormy/lib/types"
+	"github.com/radasam/gormy/lib/types"
 	"reflect"
 	"strings"
 )

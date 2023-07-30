@@ -3,7 +3,7 @@ package joins
 import (
 	"database/sql"
 	"fmt"
-	"gormy/lib/types"
+	"github.com/radasam/gormy/lib/types"
 )
 
 type origin struct {
