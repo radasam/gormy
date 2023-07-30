@@ -3,9 +3,10 @@ package sqlparser
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/radasam/gormy/pkg/internal/joins"
 	"strconv"
 	"strings"
+
+	"github.com/radasam/gormy/internal/joins"
 )
 
 type sqlParser[T any] struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	// "github.com/radasam/gormy/pkg/internal/joins"
+	// "github.com/radasam/gormy/internal/joins"
 )
 
 var gc *GormyClient

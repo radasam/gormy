@@ -2,7 +2,8 @@ package gormy
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/fileutils"
+
+	"github.com/radasam/gormy/internal/fileutils"
 )
 
 type importedColumn struct {

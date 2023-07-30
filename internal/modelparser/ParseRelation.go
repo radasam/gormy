@@ -2,9 +2,10 @@ package modelparser
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/types"
 	"reflect"
 	"strings"
+
+	"github.com/radasam/gormy/internal/types"
 )
 
 func ParseRelation(relationTag string, structName string, relationModel reflect.Type, relationPrefix string) (types.Relation, error) {

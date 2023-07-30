@@ -3,9 +3,10 @@ package modelparser
 import (
 	"errors"
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/types"
 	"reflect"
 	"strings"
+
+	"github.com/radasam/gormy/internal/types"
 )
 
 func ParseColumn(columnTag string, structName string, goType reflect.Type, relationPrefix string, relationCount int) (*types.Column, *types.Relation, error) {

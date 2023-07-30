@@ -2,10 +2,11 @@ package gormy
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/joins"
-	"github.com/radasam/gormy/pkg/internal/sqlparser"
-	"github.com/radasam/gormy/pkg/internal/types"
 	"strings"
+
+	"github.com/radasam/gormy/internal/joins"
+	"github.com/radasam/gormy/internal/sqlparser"
+	"github.com/radasam/gormy/internal/types"
 )
 
 type SelectQuery[T any] struct {

@@ -3,7 +3,8 @@ package joins
 import (
 	"database/sql"
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/types"
+
+	"github.com/radasam/gormy/internal/types"
 )
 
 type manyToMany struct {

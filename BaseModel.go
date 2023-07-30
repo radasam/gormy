@@ -1,9 +1,10 @@
 package gormy
 
 import (
-	"github.com/radasam/gormy/pkg/internal/modelparser"
-	"github.com/radasam/gormy/pkg/internal/types"
 	"reflect"
+
+	"github.com/radasam/gormy/internal/modelparser"
+	"github.com/radasam/gormy/internal/types"
 )
 
 type BaseModel interface {

@@ -2,10 +2,11 @@ package gormy
 
 import (
 	"fmt"
-	"github.com/radasam/gormy/pkg/internal/joins"
-	"github.com/radasam/gormy/pkg/internal/types"
-	"github.com/radasam/gormy/pkg/internal/utils"
 	"reflect"
+
+	"github.com/radasam/gormy/internal/joins"
+	"github.com/radasam/gormy/internal/types"
+	"github.com/radasam/gormy/internal/utils"
 )
 
 type Query[T any] struct {
