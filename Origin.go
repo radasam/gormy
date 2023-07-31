@@ -44,9 +44,11 @@ func (_origin *origin) TableExpr() string {
 func (_origin *origin) JoinExpr(originKey string, relation Relation) string {
 	return ""
 }
+
 func (_origin *origin) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
 	_origin.parser.Parse(parentRow, key, name, column, sqlType)
 }
+
 func (_origin *origin) OnJoin(join Join) {
 	_origin.tableExpr = fmt.Sprintf("(select *, row_number () over() as jk0__join_row from %s)", _origin.tableExpr)
 	_origin.derivedColumns = append(_origin.derivedColumns, "jk0__join_row")

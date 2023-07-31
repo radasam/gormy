@@ -15,7 +15,7 @@ func ParseColumn(columnTag string, structName string, goType reflect.Type, relat
 	var err error
 
 	if columnTag == "" {
-		return nil, nil, errors.New("ParseColumnError: No data type provided.")
+		return nil, nil, errors.New("No data type provided")
 	}
 
 	tagItems := strings.Split(strings.Split(strings.Split(columnTag, "gormy:\"")[1], "\"")[0], ",")
@@ -36,10 +36,10 @@ func ParseColumn(columnTag string, structName string, goType reflect.Type, relat
 				relation.JoinKey = fmt.Sprintf("%s_jk%d", relationPrefix, relationCount+1)
 
 				if err != nil {
-					return nil, nil, err
+					return nil, nil, fmt.Errorf("parsing relation: %w", err)
 				}
 			default:
-				return &column, nil, fmt.Errorf("ParseColumnError: Unidentified option - %s", name)
+				return &column, nil, fmt.Errorf("Unidentified option - %s", name)
 			}
 		} else {
 			column.DataType = tagItem
@@ -50,7 +50,7 @@ func ParseColumn(columnTag string, structName string, goType reflect.Type, relat
 		return nil, &relation, nil
 	} else {
 		if column.DataType == "" {
-			return nil, nil, errors.New("ParseColumnError: No data type provided.")
+			return nil, nil, errors.New("No data type provided")
 		}
 
 		column.StructName = structName

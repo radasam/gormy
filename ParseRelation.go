@@ -32,7 +32,6 @@ func ParseRelation(relationTag string, structName string, relationModel reflect.
 				relation.ForeignKey = foreignKey
 			default:
 				tagData[name] = value
-				// return relation, fmt.Errorf("ParseRelationError: Unidentified option - %s", name)
 			}
 		} else {
 			relation.Type = name
@@ -52,7 +51,7 @@ func ParseRelation(relationTag string, structName string, relationModel reflect.
 			column, _, err := ParseColumn(string(relationModel.Field(i).Tag), relationModel.Field(i).Name, relationModel.Field(i).Type, relationPrefix, relationCount)
 
 			if err != nil {
-				println(err.Error())
+				return Relation{}, err
 			}
 
 			relationColumns = append(relationColumns, *column)
@@ -60,7 +59,7 @@ func ParseRelation(relationTag string, structName string, relationModel reflect.
 			tableName, err := ParseConfig(string(relationModel.Field(i).Tag))
 
 			if err != nil {
-				println(err.Error())
+				return Relation{}, err
 			}
 
 			relation.TableName = tableName

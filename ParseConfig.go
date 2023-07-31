@@ -16,7 +16,7 @@ func ParseConfig(configTag string) (string, error) {
 
 			switch name {
 			default:
-				return "", fmt.Errorf("ParseConfigError: Unidentified option - %s", name)
+				return "", fmt.Errorf("Unidentified option - %s", name)
 			}
 		} else {
 			tableName = tagItem

@@ -3,13 +3,13 @@ package gormy
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 )
 
 type sqlParser[T any] struct {
 	rows   sql.Rows
-	joins  []Join
 	values map[int]map[string]interface{}
 	origin Join
 }
@@ -49,7 +49,7 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 	columnTypes, err := sqlparser.rows.ColumnTypes()
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read column types from sql result: %w", err)
 	}
 
 	count := len(columnTypes)
@@ -63,13 +63,10 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 			switch v.DatabaseTypeName() {
 			case "VARCHAR", "TEXT", "UUID", "TIMESTAMP":
 				scanArgs[i] = new(sql.NullString)
-				break
 			case "BOOL":
 				scanArgs[i] = new(sql.NullBool)
-				break
 			case "INT4", "INT8":
 				scanArgs[i] = new(sql.NullInt64)
-				break
 			default:
 				scanArgs[i] = new(sql.NullString)
 			}
@@ -78,7 +75,7 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 		err := sqlparser.rows.Scan(scanArgs...)
 
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("failed to scan sql result: %w", err)
 		}
 
 		if columnTypes[0].Name() == "jk0__join_row" {
@@ -86,17 +83,6 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 				rowNumber = int(z.Int64) - 1
 			}
 		}
-
-		// if lastRowNumber == rowNumber {
-		// 	repeatRowNumber += 1
-		// } else {
-		// 	lastRowNumber = rowNumber
-		// 	repeatRowNumber = 0
-		// }
-
-		// if _, ok := sqlparser.values[rowNumber]; !ok {
-		// 	sqlparser.values[rowNumber] = map[string]interface{}{}
-		// }
 
 		for i, column := range columnTypes {
 
@@ -111,7 +97,7 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 	z, err := json.Marshal(&values)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("marshalling result to struct: %w", err)
 	}
 
 	return string(z), err
@@ -127,7 +113,7 @@ func (sqlparser *sqlParser[T]) Parse(rows *T) error {
 	err = json.Unmarshal([]byte(jsonString), &rows)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal result to struct: %w", err)
 	}
 
 	return nil

@@ -9,6 +9,7 @@ type Table[T any] struct {
 	Columns   []Column
 	Relations []Relation
 	Rows      []T
+	errored   error
 }
 
 func (table *Table[T]) Create() *Command {
@@ -37,6 +38,7 @@ func (table *Table[T]) Query() *Query[T] {
 	newQuery.relations = table.Relations
 	newQuery.Rows = table.Rows
 	newQuery.origin = Origin("Origin", table.Columns, table.Name)
+	newQuery.errored = table.errored
 
 	return newQuery
 }

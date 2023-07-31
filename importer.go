@@ -8,7 +8,7 @@ import (
 
 type _importer struct {
 	schemaName     string
-	ignoredTable   []string
+	ignoredTables  []string
 	importedTables []importedTable
 	columnNameMap  func(string) string
 	schemaMap      map[string]string
@@ -44,7 +44,7 @@ func (importer *_importer) DiscoverTables() error {
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("querying database schema: %w", err)
 	}
 
 	for {
@@ -59,10 +59,20 @@ func (importer *_importer) DiscoverTables() error {
 		err = rows.Scan(&row)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("discovering tables: %w", err)
 		}
 
-		tableNames = append(tableNames, row.String)
+		ignored := false
+
+		for _, v := range importer.ignoredTables {
+			if v == row.String {
+				ignored = true
+			}
+		}
+
+		if !ignored {
+			tableNames = append(tableNames, row.String)
+		}
 	}
 
 	for _, tableName := range tableNames {
@@ -95,14 +105,14 @@ func (importer *_importer) discoverColumns(tableName string) ([]importedColumn, 
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("querying information schema: %w", err)
+		return nil, fmt.Errorf("querying table schema: %w", err)
 	}
 
 	columnTypes, err := rows.ColumnTypes()
 	columns := []map[string]string{}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("reading column types: %w", err)
 	}
 
 	for {
@@ -121,8 +131,7 @@ func (importer *_importer) discoverColumns(tableName string) ([]importedColumn, 
 		err = rows.Scan(row...)
 
 		if err != nil {
-			println("scan err")
-			return nil, err
+			return nil, fmt.Errorf("scanning column data: %w", err)
 		}
 
 		column := map[string]string{}
@@ -148,23 +157,24 @@ func (importer *_importer) discoverColumns(tableName string) ([]importedColumn, 
 	byt, err := json.Marshal(&columns)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("marshalling column: %w", err)
 	}
 
 	err = json.Unmarshal(byt, &tColumns)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unmarshalling column: %w", err)
 	}
 
 	return tColumns, nil
 }
 
-func NewImporter(schemaName string, outputDest string) *_importer {
+func NewImporter(schemaName string, outputDest string, ignoredTables []string) *_importer {
 	return &_importer{
 		outputDest:    outputDest,
 		schemaName:    schemaName,
 		columnNameMap: DefaultNameMap,
 		schemaMap:     DefaultSchemaMap(),
+		ignoredTables: ignoredTables,
 	}
 }

@@ -14,6 +14,7 @@ type Query[T any] struct {
 	queryString string
 	Rows        []T
 	relations   []Relation
+	errored     error
 }
 
 func (query *Query[T]) Select() *SelectQuery[T] {
@@ -26,6 +27,7 @@ func (query *Query[T]) Select() *SelectQuery[T] {
 	newQuery.columns = query.columns
 	newQuery.relations = query.relations
 	newQuery.activeRelations = make([]ActiveRelation, 0)
+	newQuery.errored = query.errored
 
 	return newQuery
 }
@@ -39,6 +41,7 @@ func (query *Query[T]) Insert(rows *[]T) *Command {
 	command := &Command{}
 
 	command.queryString = fmt.Sprintf("INSERT INTO %s (", query.tableName)
+	command.errored = query.errored
 
 	validColumns := []int{}
 

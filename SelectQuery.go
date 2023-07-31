@@ -9,6 +9,7 @@ type SelectQuery[T any] struct {
 	Query[T]
 	selected        []Column
 	activeRelations []ActiveRelation
+	errored         error
 }
 
 func (query *SelectQuery[T]) Column(columnName string) *SelectQuery[T] {
@@ -16,7 +17,8 @@ func (query *SelectQuery[T]) Column(columnName string) *SelectQuery[T] {
 	column, err := query.columnByName(columnName)
 
 	if err != nil {
-		panic(err)
+		query.errored = fmt.Errorf("selectec column doesnt exist: %s", columnName)
+		return query
 	}
 
 	query.selected = append(query.selected, column)
@@ -49,17 +51,17 @@ func (query *SelectQuery[T]) relationByName(relationName string, joinName string
 		}
 	}
 
-	for _, ar := range query.activeRelations {
-		relation, err := ar.Relation.RelationByName(relationName)
-		join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
-		if err != nil {
-			return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
-		}
+	// for _, ar := range query.activeRelations {
+	// 	relation, err := ar.Relation.RelationByName(relationName)
+	// 	join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
+	// 	if err != nil {
+	// 		return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+	// 	}
 
-		ar.Join.OnJoin(join)
+	// 	ar.Join.OnJoin(join)
 
-		return ar.Join.JoinKey(), relation, join, nil
-	}
+	// 	return ar.Join.JoinKey(), relation, join, nil
+	// }
 
 	return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
 }
@@ -69,7 +71,8 @@ func (query *SelectQuery[T]) Relation(relationName string, joinName string) *Sel
 	originKey, relation, join, err := query.relationByName(relationName, joinName)
 
 	if err != nil {
-		println(err.Error())
+		query.errored = err
+		return query
 	}
 
 	activeRelation := ActiveRelation{
@@ -84,7 +87,12 @@ func (query *SelectQuery[T]) Relation(relationName string, joinName string) *Sel
 	return query
 }
 
-func (query *SelectQuery[T]) Exec() []T {
+func (query *SelectQuery[T]) Exec() ([]T, error) {
+
+	if query.errored != nil {
+		return []T{}, query.errored
+	}
+
 	queryString := query.queryString
 
 	columnExpr := ""
@@ -122,18 +130,12 @@ func (query *SelectQuery[T]) Exec() []T {
 	rows, err := gc.conn.Query(queryString)
 
 	if err != nil {
-		println(err.Error())
-	}
-
-	joins := []Join{}
-
-	for _, ar := range query.activeRelations {
-		joins = append(joins, ar.Join)
+		return []T{}, fmt.Errorf("executing query: %w", err)
 	}
 
 	sqlParser := newSqlParser(query.Rows, query.origin, *rows)
 
 	sqlParser.Parse(&query.Rows)
 
-	return query.Rows
+	return query.Rows, nil
 }
