@@ -5,12 +5,14 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/radasam/gormy/internal/joins"
-	// "github.com/radasam/gormy/internal/joins"
 )
 
-func init() {
-	joins.Init()
+type registeredjoins struct {
+	JoinMap map[string]func(joinKey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join
+}
+
+func (rj *registeredjoins) Register(name string, join func(joinKey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join) {
+	rj.JoinMap[name] = join
 }
 
 var gc *GormyClient
@@ -23,7 +25,8 @@ func db() *sql.DB {
 }
 
 type GormyClient struct {
-	conn *sql.DB
+	conn            *sql.DB
+	RegisteredJoins *registeredjoins
 }
 
 // type Join joins.Join
@@ -39,9 +42,36 @@ func NewGormyClient(connString string) (*GormyClient, error) {
 		return nil, fmt.Errorf("connecting to db: %w", err)
 	}
 
+	registeredJoins := &registeredjoins{
+		JoinMap: map[string]func(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join{},
+	}
+	registeredJoins.Register("onetoone", OneToOne)
+	registeredJoins.Register("onetomany", OneToMany)
+	registeredJoins.Register("manytomany", ManyToMany)
+
 	gc = &GormyClient{
-		conn: conn,
+		conn:            conn,
+		RegisteredJoins: registeredJoins,
 	}
 
 	return gc, nil
+}
+
+func (rj *registeredjoins) ByName(name string) (func(joinKey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join, error) {
+	for k := range rj.JoinMap {
+		if k == name {
+			return rj.JoinMap[k], nil
+		}
+	}
+
+	return nil, fmt.Errorf("Join doesnt exist")
+
+}
+
+func Init() {
+
+}
+
+func RegisterJoin(name string, join func(joinKey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join) {
+	gc.RegisteredJoins.Register(name, join)
 }

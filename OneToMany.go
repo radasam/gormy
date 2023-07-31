@@ -1,26 +1,24 @@
-package joins
+package gormy
 
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/radasam/gormy/internal/types"
 )
 
 type oneToMany struct {
 	joinkey        string
 	values         map[int][]map[string]interface{}
 	joinName       string
-	columns        []types.Column
+	columns        []Column
 	derivedColumns []string
 	joinsTo        string
 	tableExpr      string
 	joins          []Join
-	parser         SqlParser
+	parser         *joinListParser
 	parentJoinRow  string
 }
 
-func (onetomany *oneToMany) Columns() []types.Column {
+func (onetomany *oneToMany) Columns() []Column {
 	return onetomany.columns
 }
 
@@ -46,7 +44,7 @@ func (onetomany *oneToMany) TableExpr() string {
 	return onetomany.tableExpr
 }
 
-func (onetomany *oneToMany) JoinExpr(originKey string, relation types.Relation) string {
+func (onetomany *oneToMany) JoinExpr(originKey string, relation Relation) string {
 	return fmt.Sprintf("%s JOIN $%s__table_name$ %s ON %s.%s = %s.%s\r\n", relation.How, relation.JoinKey, relation.JoinKey, originKey, relation.Key, relation.JoinKey, relation.ForeignKey)
 }
 
@@ -78,7 +76,7 @@ func (onetomany *oneToMany) AddJoin(join Join) {
 	onetomany.joins = append(onetomany.joins, join)
 }
 
-func OneToMany(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join {
+func OneToMany(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join {
 	tableExpr = fmt.Sprintf("(select *, row_number () over(partition by %s) as %s__join_row from %s)", parentJoinRow, joinkey, tableExpr)
 	return &oneToMany{
 		joinkey:        joinkey,
@@ -87,7 +85,7 @@ func OneToMany(joinkey string, joinName string, joinsTo string, columns []types.
 		columns:        columns,
 		joinsTo:        joinsTo,
 		tableExpr:      tableExpr,
-		parser:         NewListParser(joinkey),
+		parser:         newJoinListParser(joinkey),
 		parentJoinRow:  parentJoinRow,
 		derivedColumns: []string{fmt.Sprintf("%s__join_row", joinkey)},
 	}

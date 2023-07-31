@@ -1,4 +1,4 @@
-package types
+package gormy
 
 type Column struct {
 	StructName   string

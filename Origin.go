@@ -1,23 +1,21 @@
-package joins
+package gormy
 
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/radasam/gormy/internal/types"
 )
 
 type origin struct {
 	joinkey        string
 	values         map[int]map[string]interface{}
 	joinName       string
-	columns        []types.Column
+	columns        []Column
 	derivedColumns []string
 	tableExpr      string
-	parser         sqlValueParser
+	parser         joinValueParser
 }
 
-func (_origin origin) Columns() []types.Column {
+func (_origin origin) Columns() []Column {
 	return _origin.columns
 }
 
@@ -43,7 +41,7 @@ func (_origin *origin) TableExpr() string {
 	return _origin.tableExpr
 }
 
-func (_origin *origin) JoinExpr(originKey string, relation types.Relation) string {
+func (_origin *origin) JoinExpr(originKey string, relation Relation) string {
 	return ""
 }
 func (_origin *origin) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
@@ -80,13 +78,13 @@ func (_origin origin) JoinKey() string {
 	return _origin.joinkey
 }
 
-func Origin(joinName string, columns []types.Column, tableExpr string) Join {
+func Origin(joinName string, columns []Column, tableExpr string) Join {
 	return &origin{
 		joinkey:   "jk0",
 		values:    map[int]map[string]interface{}{},
 		joinName:  joinName,
 		columns:   columns,
 		tableExpr: tableExpr,
-		parser:    NewValueParser("jk0"),
+		parser:    newJoinValueParser("jk0"),
 	}
 }

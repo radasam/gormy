@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/radasam/gormy/internal/joins"
-	"github.com/radasam/gormy/internal/types"
 	"github.com/radasam/gormy/internal/utils"
 )
 
 type Query[T any] struct {
-	origin      joins.Join
+	origin      Join
 	tableName   string
-	columns     []types.Column
+	columns     []Column
 	queryString string
 	Rows        []T
-	relations   []types.Relation
+	relations   []Relation
 }
 
 func (query *Query[T]) Select() *SelectQuery[T] {
@@ -79,12 +77,12 @@ func (query *Query[T]) Insert(rows *[]T) *Command {
 
 }
 
-func (query *Query[T]) columnByName(columnName string) (types.Column, error) {
+func (query *Query[T]) columnByName(columnName string) (Column, error) {
 	for _, column := range query.origin.Columns() {
 		if column.Name == columnName {
 			return column, nil
 		}
 	}
 
-	return types.Column{}, fmt.Errorf("Column doesnt exist")
+	return Column{}, fmt.Errorf("Column doesnt exist")
 }

@@ -11,7 +11,7 @@ type Command struct {
 func (command *Command) Exec() (sql.Result, error) {
 	queryString := command.queryString
 
-	result, err := db().Exec(queryString)
+	result, err := gc.conn.Exec(queryString)
 
 	return result, err
 }

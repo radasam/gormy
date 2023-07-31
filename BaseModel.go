@@ -2,9 +2,6 @@ package gormy
 
 import (
 	"reflect"
-
-	"github.com/radasam/gormy/internal/modelparser"
-	"github.com/radasam/gormy/internal/types"
 )
 
 type BaseModel interface {
@@ -20,14 +17,14 @@ func Model[T any](baseModel T) *Table[T] {
 		fields = fields.Elem()
 	}
 
-	myTableDDL.Columns = []types.Column{}
-	myTableDDL.Relations = []types.Relation{}
+	myTableDDL.Columns = []Column{}
+	myTableDDL.Relations = []Relation{}
 	myTableDDL.Rows = []T{baseModel}
 	relationCount := 0
 
 	for i := 0; i < fields.NumField(); i++ {
 		if fields.Field(i).Name != "baseModel" {
-			column, relation, err := modelparser.ParseColumn(string(fields.Field(i).Tag), fields.Field(i).Name, fields.Field(i).Type, "jk0", len(myTableDDL.Relations))
+			column, relation, err := ParseColumn(string(fields.Field(i).Tag), fields.Field(i).Name, fields.Field(i).Type, "jk0", len(myTableDDL.Relations))
 
 			if err != nil {
 				println(err.Error())
@@ -43,7 +40,7 @@ func Model[T any](baseModel T) *Table[T] {
 			}
 
 		} else {
-			tableName, err := modelparser.ParseConfig(string(fields.Field(i).Tag))
+			tableName, err := ParseConfig(string(fields.Field(i).Tag))
 
 			if err != nil {
 				println(err.Error())

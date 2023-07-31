@@ -1,25 +1,23 @@
-package joins
+package gormy
 
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/radasam/gormy/internal/types"
 )
 
 type oneToOne struct {
 	joinkey        string
 	values         map[int]map[string]interface{}
 	joinName       string
-	columns        []types.Column
+	columns        []Column
 	derivedColumns []string
 	joinsTo        string
 	tableExpr      string
-	parser         sqlValueParser
+	parser         joinValueParser
 	parentJoinRow  string
 }
 
-func (onetoone oneToOne) Columns() []types.Column {
+func (onetoone oneToOne) Columns() []Column {
 	return onetoone.columns
 }
 
@@ -45,7 +43,7 @@ func (onetoone oneToOne) TableExpr() string {
 	return onetoone.tableExpr
 }
 
-func (onetoone oneToOne) JoinExpr(originKey string, relation types.Relation) string {
+func (onetoone oneToOne) JoinExpr(originKey string, relation Relation) string {
 	return fmt.Sprintf("%s JOIN $%s__table_name$ %s ON %s.%s = %s.%s\r\n", relation.How, relation.JoinKey, relation.JoinKey, originKey, relation.Key, relation.JoinKey, relation.ForeignKey)
 }
 
@@ -110,7 +108,7 @@ func (onetoone oneToOne) JoinKey() string {
 	return onetoone.joinkey
 }
 
-func OneToOne(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join {
+func OneToOne(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join {
 	return oneToOne{
 		joinkey:       joinkey,
 		values:        map[int]map[string]interface{}{},
@@ -118,7 +116,7 @@ func OneToOne(joinkey string, joinName string, joinsTo string, columns []types.C
 		columns:       columns,
 		joinsTo:       joinsTo,
 		tableExpr:     tableExpr,
-		parser:        NewValueParser(joinkey),
+		parser:        newJoinValueParser(joinkey),
 		parentJoinRow: parentJoinRow,
 	}
 }

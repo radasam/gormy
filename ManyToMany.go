@@ -1,26 +1,24 @@
-package joins
+package gormy
 
 import (
 	"database/sql"
 	"fmt"
-
-	"github.com/radasam/gormy/internal/types"
 )
 
 type manyToMany struct {
 	joinkey        string
 	values         map[int][]map[string]interface{}
 	joinName       string
-	columns        []types.Column
+	columns        []Column
 	derivedColumns []string
 	intermediary   string
 	joinsTo        string
 	tableExpr      string
-	parser         SqlParser
+	parser         *joinListParser
 	parentJoinRow  string
 }
 
-func (manytomany *manyToMany) Columns() []types.Column {
+func (manytomany *manyToMany) Columns() []Column {
 	return manytomany.columns
 }
 
@@ -46,7 +44,7 @@ func (manytomany *manyToMany) TableExpr() string {
 	return manytomany.tableExpr
 }
 
-func (manytomany *manyToMany) JoinExpr(originKey string, relation types.Relation) string {
+func (manytomany *manyToMany) JoinExpr(originKey string, relation Relation) string {
 	str_out := ""
 	if _, ok := relation.TagData["intermediary"]; ok {
 		str_out += fmt.Sprintf("%s JOIN %s %s_i ON %s.%s = %s_i.%s\r\n", relation.How, relation.TagData["intermediary"], relation.JoinKey, originKey, relation.Key, relation.JoinKey, relation.Key)
@@ -82,7 +80,7 @@ func (manytomany *manyToMany) JoinKey() string {
 	return manytomany.joinkey
 }
 
-func ManyToMany(joinkey string, joinName string, joinsTo string, columns []types.Column, tableExpr string, parentJoinRow string) Join {
+func ManyToMany(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join {
 	return &manyToMany{
 		joinkey:       joinkey,
 		values:        map[int][]map[string]interface{}{},
@@ -90,7 +88,7 @@ func ManyToMany(joinkey string, joinName string, joinsTo string, columns []types
 		columns:       columns,
 		joinsTo:       joinsTo,
 		tableExpr:     tableExpr,
-		parser:        NewListParser(joinkey),
+		parser:        newJoinListParser(joinkey),
 		parentJoinRow: parentJoinRow,
 	}
 }

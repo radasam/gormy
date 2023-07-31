@@ -37,7 +37,7 @@ func (importer *_importer) DiscoverTables() error {
 	itables := []importedTable{}
 	tableNames := []string{}
 
-	rows, err := db().Query(
+	rows, err := gc.conn.Query(
 		fmt.Sprintf(`SELECT table_name FROM information_schema.tables
 		WHERE table_schema='%s'`,
 			importer.schemaName),
@@ -88,7 +88,7 @@ func (importer *_importer) DiscoverTables() error {
 }
 
 func (importer *_importer) discoverColumns(tableName string) ([]importedColumn, error) {
-	rows, err := db().Query(
+	rows, err := gc.conn.Query(
 		fmt.Sprintf(`SELECT column_name as sql_name, udt_name as sql_type FROM information_schema.columns
 		WHERE table_schema='public' and table_name = '%s'`,
 			tableName),

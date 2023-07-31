@@ -3,15 +3,11 @@ package gormy
 import (
 	"fmt"
 	"strings"
-
-	"github.com/radasam/gormy/internal/joins"
-	"github.com/radasam/gormy/internal/sqlparser"
-	"github.com/radasam/gormy/internal/types"
 )
 
 type SelectQuery[T any] struct {
 	Query[T]
-	selected        []types.Column
+	selected        []Column
 	activeRelations []ActiveRelation
 }
 
@@ -37,12 +33,12 @@ func (query *SelectQuery[T]) Where(expr string, columnName string, value string)
 	return query
 }
 
-func (query *SelectQuery[T]) relationByName(relationName string, joinName string) (string, types.Relation, joins.Join, error) {
+func (query *SelectQuery[T]) relationByName(relationName string, joinName string) (string, Relation, Join, error) {
 
-	joinType, err := joins.Joins.ByName(joinName)
+	joinType, err := gc.RegisteredJoins.ByName(joinName)
 
 	if err != nil {
-		return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+		return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
 	}
 
 	for _, relation := range query.relations {
@@ -57,7 +53,7 @@ func (query *SelectQuery[T]) relationByName(relationName string, joinName string
 		relation, err := ar.Relation.RelationByName(relationName)
 		join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
 		if err != nil {
-			return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+			return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
 		}
 
 		ar.Join.OnJoin(join)
@@ -65,7 +61,7 @@ func (query *SelectQuery[T]) relationByName(relationName string, joinName string
 		return ar.Join.JoinKey(), relation, join, nil
 	}
 
-	return "", types.Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+	return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
 }
 
 func (query *SelectQuery[T]) Relation(relationName string, joinName string) *SelectQuery[T] {
@@ -123,19 +119,19 @@ func (query *SelectQuery[T]) Exec() []T {
 		queryString += fmt.Sprintf(", %s__join_row", relation.Join.JoinKey())
 	}
 
-	rows, err := db().Query(queryString)
+	rows, err := gc.conn.Query(queryString)
 
 	if err != nil {
 		println(err.Error())
 	}
 
-	joins := []joins.Join{}
+	joins := []Join{}
 
 	for _, ar := range query.activeRelations {
 		joins = append(joins, ar.Join)
 	}
 
-	sqlParser := sqlparser.NewSqlParser(query.Rows, query.origin, *rows)
+	sqlParser := newSqlParser(query.Rows, query.origin, *rows)
 
 	sqlParser.Parse(&query.Rows)
 

@@ -1,4 +1,4 @@
-package modelparser
+package gormy
 
 import (
 	"fmt"

@@ -1,19 +1,17 @@
-package modelparser
+package gormy
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/radasam/gormy/internal/types"
 )
 
-func ParseColumn(columnTag string, structName string, goType reflect.Type, relationPrefix string, relationCount int) (*types.Column, *types.Relation, error) {
+func ParseColumn(columnTag string, structName string, goType reflect.Type, relationPrefix string, relationCount int) (*Column, *Relation, error) {
 
 	IsRelation := false
-	column := types.Column{}
-	relation := types.Relation{}
+	column := Column{}
+	relation := Relation{}
 	var err error
 
 	if columnTag == "" {

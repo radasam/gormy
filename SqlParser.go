@@ -1,19 +1,17 @@
-package sqlparser
+package gormy
 
 import (
 	"database/sql"
 	"encoding/json"
 	"strconv"
 	"strings"
-
-	"github.com/radasam/gormy/internal/joins"
 )
 
 type sqlParser[T any] struct {
 	rows   sql.Rows
-	joins  []joins.Join
+	joins  []Join
 	values map[int]map[string]interface{}
-	origin joins.Join
+	origin Join
 }
 
 func (sqlparser *sqlParser[T]) Parser(rowNumber int, name string, column *sql.ColumnType, sqlType interface{}) {
@@ -136,7 +134,7 @@ func (sqlparser *sqlParser[T]) Parse(rows *T) error {
 
 }
 
-func NewSqlParser[T any](rowStruct T, origin joins.Join, rows sql.Rows) sqlParser[T] {
+func newSqlParser[T any](rowStruct T, origin Join, rows sql.Rows) sqlParser[T] {
 	return sqlParser[T]{
 		origin: origin,
 		rows:   rows,

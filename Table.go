@@ -2,15 +2,12 @@ package gormy
 
 import (
 	"fmt"
-
-	"github.com/radasam/gormy/internal/joins"
-	"github.com/radasam/gormy/internal/types"
 )
 
 type Table[T any] struct {
 	Name      string
-	Columns   []types.Column
-	Relations []types.Relation
+	Columns   []Column
+	Relations []Relation
 	Rows      []T
 }
 
@@ -39,7 +36,7 @@ func (table *Table[T]) Query() *Query[T] {
 	newQuery.columns = table.Columns
 	newQuery.relations = table.Relations
 	newQuery.Rows = table.Rows
-	newQuery.origin = joins.Origin("Origin", table.Columns, table.Name)
+	newQuery.origin = Origin("Origin", table.Columns, table.Name)
 
 	return newQuery
 }
