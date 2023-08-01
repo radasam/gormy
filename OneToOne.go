@@ -15,6 +15,7 @@ type oneToOne struct {
 	tableExpr      string
 	parser         joinValueParser
 	parentJoinRow  string
+	hasJoin        bool
 }
 
 func (onetoone oneToOne) Columns() []Column {
@@ -48,8 +49,13 @@ func (onetoone oneToOne) JoinExpr(originKey string, relation Relation) string {
 }
 
 func (onetoone oneToOne) OnJoin(join Join) {
+	onetoone.hasJoin = false
 	onetoone.tableExpr = fmt.Sprintf("(select *, row_number () over(partition by %s) as %s__join_row from %s)", onetoone.parentJoinRow, onetoone.joinkey, onetoone.tableExpr)
 	onetoone.parser.OnJoin(join)
+}
+
+func (onetoone oneToOne) HasJoin() bool {
+	return onetoone.hasJoin
 }
 
 func (onetoone oneToOne) Parser(rowNumber int, repeatRowNumber int, key string, name string, column *sql.ColumnType, sqlType interface{}) {

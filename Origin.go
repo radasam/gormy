@@ -13,6 +13,7 @@ type origin struct {
 	derivedColumns []string
 	tableExpr      string
 	parser         joinValueParser
+	hasJoin        bool
 }
 
 func (_origin origin) Columns() []Column {
@@ -53,6 +54,10 @@ func (_origin *origin) OnJoin(join Join) {
 	_origin.tableExpr = fmt.Sprintf("(select *, row_number () over() as jk0__join_row from %s)", _origin.tableExpr)
 	_origin.derivedColumns = append(_origin.derivedColumns, "jk0__join_row")
 	_origin.parser.OnJoin(join)
+}
+
+func (_origin origin) HasJoin() bool {
+	return _origin.hasJoin
 }
 
 func (_origin origin) Row(parentRow string) interface{} {

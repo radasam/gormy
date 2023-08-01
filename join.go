@@ -15,4 +15,5 @@ type Join interface {
 	JoinName() string
 	JoinKey() string
 	OnJoin(join Join)
+	HasJoin() bool
 }

@@ -16,6 +16,7 @@ type oneToMany struct {
 	joins          []Join
 	parser         *joinListParser
 	parentJoinRow  string
+	hasJoin        bool
 }
 
 func (onetomany *oneToMany) Columns() []Column {
@@ -49,7 +50,13 @@ func (onetomany *oneToMany) JoinExpr(originKey string, relation Relation) string
 }
 
 func (onetomany *oneToMany) OnJoin(join Join) {
-	onetomany.parser.OnJoin(join)
+	onetomany.hasJoin = true
+	onetomany.tableExpr = fmt.Sprintf("(select *, row_number () over(partition by %s) as %s__join_row from %s)", onetomany.parentJoinRow, onetomany.joinkey, onetomany.tableExpr)
+	onetomany.derivedColumns = append(onetomany.derivedColumns, fmt.Sprintf("%s__join_row", onetomany.joinkey))
+}
+
+func (onetomany *oneToMany) HasJoin() bool {
+	return onetomany.hasJoin
 }
 
 func (onetomany *oneToMany) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {

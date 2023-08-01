@@ -124,7 +124,9 @@ func (query *SelectQuery[T]) Exec() ([]T, error) {
 	queryString += "ORDER BY jk0__join_row"
 
 	for _, relation := range query.activeRelations {
-		queryString += fmt.Sprintf(", %s__join_row", relation.Join.JoinKey())
+		if relation.Join.HasJoin() {
+			queryString += fmt.Sprintf(", %s__join_row", relation.Join.JoinKey())
+		}
 	}
 
 	rows, err := gc.conn.Query(queryString)

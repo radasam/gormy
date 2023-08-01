@@ -16,6 +16,7 @@ type manyToMany struct {
 	tableExpr      string
 	parser         *joinListParser
 	parentJoinRow  string
+	hasJoin        bool
 }
 
 func (manytomany *manyToMany) Columns() []Column {
@@ -55,9 +56,14 @@ func (manytomany *manyToMany) JoinExpr(originKey string, relation Relation) stri
 }
 
 func (manytomany *manyToMany) OnJoin(join Join) {
+	manytomany.hasJoin = true
 	manytomany.tableExpr = fmt.Sprintf("(select *, row_number () over(partition by %s) as %s__join_row from %s)", manytomany.parentJoinRow, manytomany.joinkey, manytomany.tableExpr)
 	manytomany.derivedColumns = append(manytomany.derivedColumns, fmt.Sprintf("%s__join_row", manytomany.joinkey))
 	manytomany.parser.OnJoin(join)
+}
+
+func (manytomany *manyToMany) HasJoin() bool {
+	return manytomany.hasJoin
 }
 
 func (manytomany *manyToMany) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
