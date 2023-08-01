@@ -51,17 +51,17 @@ func (query *SelectQuery[T]) relationByName(relationName string, joinName string
 		}
 	}
 
-	// for _, ar := range query.activeRelations {
-	// 	relation, err := ar.Relation.RelationByName(relationName)
-	// 	join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
-	// 	if err != nil {
-	// 		return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
-	// 	}
+	for _, ar := range query.activeRelations {
+		relation, err := ar.Relation.RelationByName(relationName)
+		join := joinType(relation.JoinKey, relation.Name, ar.Relation.Name, relation.Columns, relation.TableName, relation.ForeignKey)
+		if err != nil {
+			return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
+		} else {
+			ar.Join.OnJoin(join)
+			return ar.Join.JoinKey(), relation, join, nil
+		}
 
-	// 	ar.Join.OnJoin(join)
-
-	// 	return ar.Join.JoinKey(), relation, join, nil
-	// }
+	}
 
 	return "", Relation{}, nil, fmt.Errorf("Relation doesnt exist")
 }
