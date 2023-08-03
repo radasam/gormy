@@ -30,7 +30,7 @@ func (query *SelectQuery[T]) Where(expr string, columnName string, value string)
 
 	cleanExpr := strings.ReplaceAll(expr, "?", "%s")
 
-	query.queryString = query.queryString + fmt.Sprintf("WHERE "+cleanExpr, columnName, value)
+	query.queryString = query.queryString + fmt.Sprintf("WHERE "+cleanExpr+"\r\n", columnName, value)
 
 	return query
 }
@@ -121,7 +121,9 @@ func (query *SelectQuery[T]) Exec() ([]T, error) {
 		queryString = strings.ReplaceAll(queryString, fmt.Sprintf("$%s__table_name$", relation.Join.JoinKey()), relation.Join.TableExpr())
 	}
 
-	queryString += "ORDER BY jk0__join_row"
+	if len(query.activeRelations) > 0 {
+		queryString += "ORDER BY jk0__join_row"
+	}
 
 	for _, relation := range query.activeRelations {
 		if relation.Join.HasJoin() {

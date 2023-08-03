@@ -15,11 +15,13 @@ go get github.com/radasam/gormy
 To make a query you first need to define a database model
 
 ```go
-type MyTable struct {
-	baseModel   gormy.BaseModel `gormy:"mytable"`
-	Name        string          `gormy:"varchar"`
-	Age         int             `gormy:"int,name:age"`
+type MyFirstModel struct {
+	baseModel gormy.BaseModel `gormy:"myfirstmodel"`
+	Name      string          `gormy:"varchar"`
+	Age       int             `gormy:"int,name:age"`
+	Color     string          `gormy:"varchar"`
 }
+
 ```
 
 A database model is just a go struct with some struct tags, each model must have the baseModel attribute with a struct tag that corresponds to the table name in the database.
@@ -43,5 +45,35 @@ Where myConnString is a postgres connection string of the form
 Now we have the model and client we can make a query
 
 ```
+
+```
+
+### Creating a table
+
+You can also use models to define and create new tables in your data base.
+
+```go
+_, err = gormy.Model(models.MyFirstModel{}).Create().Exec()
+```
+
+### Inserting data
+
+If you pass a struct with values to Model you can also insert data
+
+```go
+myfirstmodel := []models.MyFirstModel{
+	{
+		Name:  "Steve",
+		Age:   50,
+		Color: "blue",
+	},
+	{
+		Name:  "Mary",
+		Age:   27,
+		Color: "green",
+	},
+}
+
+_, err = gormy.Model(models.MyFirstModel{}).Query().Insert(&myfirstmodel).Exec()
 
 ```
