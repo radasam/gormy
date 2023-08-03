@@ -36,5 +36,12 @@ gc, err := gormy.NewGormyClient(myConnString)
 
 Where myConnString is a postgres connection string of the form
 
-```postgres://user:pass@host:port/schema``
+```postgres://user:pass@host:port/schema```
 
+### Performing a query
+
+Now we have the model and client we can make a query
+
+```
+
+```

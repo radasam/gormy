@@ -20,5 +20,9 @@ func (command *Command) Exec() (sql.Result, error) {
 
 	result, err := gc.conn.Exec(queryString)
 
-	return result, fmt.Errorf("executing command: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("executing command: %w", err)
+	}
+
+	return result, nil
 }
