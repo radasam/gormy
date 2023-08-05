@@ -55,8 +55,20 @@ Where myConnString is a postgres connection string of the form
 
 Now we have the model and client we can make a query
 
-```
+```go
 firstModel, err := gormy.Model(models.MyFirstModel{}).Query().Select().Where("? = '?'", "name", "Steve").Exec()
+```
+
+The result will appear as the specified model struct 
+
+```
+([]models.MyFirstModel) {
+ (models.MyFirstModel) {
+  Name: (string) "Steve",
+  Age: (int) 50,
+  Color: (string) "blue",
+ }
+}
 ```
 
 ### Creating a table
@@ -89,6 +101,18 @@ _, err = gormy.Model(models.MyFirstModel{}).Query().Insert(&myfirstmodel).Exec()
 
 ```
 
+### Updating data
+
+You can also update data using the defined model.
+
+```go
+_, err := gormy.Model(testmodels.SimpleModel{}).Query().Update().
+	Set("? = '?'", "name", "Dan").
+	Set("? = ?", "age", "52").
+	Where("? = '?'", "name", "Steve").
+	Exec()
+```
+
 ### Joins
 
 To use a join on a table you first must add the join to the model, specifying a join type, and a column to join on.
@@ -107,6 +131,8 @@ You can then use the join as part of a query
 ```go
 firstModel, err := gormy.Model(models.MyTable{}).Query().Select().Relation("SecondTable", "onetoone").Where("? = '?'", "Name", "sam").Exec()
 ```
+
+Joined objects will appear as nested structs in the result
 
 ### Importing tables
 

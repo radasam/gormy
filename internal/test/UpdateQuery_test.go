@@ -39,7 +39,10 @@ func TestMultipleSetUpdate(t *testing.T) {
 
 	gormy.UseMockClient(mock)
 
-	_, err := gormy.Model(testmodels.SimpleModel{}).Query().Update().Set("? = '?'", "name", "Dan").Set("? = ?", "age", "52").Where("? = '?'", "name", "Steve").Exec()
+	_, err := gormy.Model(testmodels.SimpleModel{}).Query().Update().
+		Set("? = '?'", "name", "Dan").
+		Set("? = ?", "age", "52").
+		Where("? = '?'", "name", "Steve").Exec()
 
 	if err != nil {
 		t.Errorf("unexpected update error: %s", err.Error())
