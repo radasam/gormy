@@ -5,7 +5,7 @@ A postgres ORM for go.
 ## Installation
 
 ```bash
-go get github.com/radasam/gormys
+go get github.com/radasam/gormy
 ```
 
 ## Documentation
