@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type sqlParser[T any] struct {
-	rows   sql.Rows
+	rows   driver.RowsResult
 	values map[int]map[string]interface{}
 	origin Join
 }
@@ -120,7 +122,7 @@ func (sqlparser *sqlParser[T]) Parse(rows *T) error {
 
 }
 
-func newSqlParser[T any](rowStruct T, origin Join, rows sql.Rows) sqlParser[T] {
+func newSqlParser[T any](rowStruct T, origin Join, rows driver.RowsResult) sqlParser[T] {
 	return sqlParser[T]{
 		origin: origin,
 		rows:   rows,

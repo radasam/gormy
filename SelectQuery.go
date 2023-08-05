@@ -137,7 +137,7 @@ func (query *SelectQuery[T]) Exec() ([]T, error) {
 		return []T{}, fmt.Errorf("executing query: %w", err)
 	}
 
-	sqlParser := newSqlParser(query.Rows, query.origin, *rows)
+	sqlParser := newSqlParser(query.Rows, query.origin, rows)
 
 	sqlParser.Parse(&query.Rows)
 

@@ -1,10 +1,10 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type registeredjoins struct {
@@ -17,7 +17,7 @@ func (rj *registeredjoins) Register(name string, join func(joinKey string, joinN
 
 var gc *GormyClient
 
-func db() *sql.DB {
+func db() driver.Driver {
 	if gc == nil {
 		panic("GormyClient has not been initialised!")
 	}
@@ -25,7 +25,7 @@ func db() *sql.DB {
 }
 
 type GormyClient struct {
-	conn            *sql.DB
+	conn            driver.Driver
 	RegisteredJoins *registeredjoins
 }
 
@@ -36,11 +36,28 @@ type GormyClient struct {
 // }
 
 func NewGormyClient(connString string) (*GormyClient, error) {
-	conn, err := sql.Open("postgres", connString)
+	conn, err := driver.NewPostgres(connString)
 
 	if err != nil {
 		return nil, fmt.Errorf("connecting to db: %w", err)
 	}
+
+	registeredJoins := &registeredjoins{
+		JoinMap: map[string]func(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join{},
+	}
+	registeredJoins.Register("onetoone", OneToOne)
+	registeredJoins.Register("onetomany", OneToMany)
+	registeredJoins.Register("manytomany", ManyToMany)
+
+	gc = &GormyClient{
+		conn:            conn,
+		RegisteredJoins: registeredJoins,
+	}
+
+	return gc, nil
+}
+
+func UseMockClient(conn *driver.Mock) (*GormyClient, error) {
 
 	registeredJoins := &registeredjoins{
 		JoinMap: map[string]func(joinkey string, joinName string, joinsTo string, columns []Column, tableExpr string, parentJoinRow string) Join{},

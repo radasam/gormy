@@ -80,6 +80,16 @@ func (query *Query[T]) Insert(rows *[]T) *Command {
 
 }
 
+func (q *Query[T]) Update() *UpdateQuery[T] {
+
+	q.queryString = "UPDATE $jk0__table_name$ as jk0\r\n"
+
+	return &UpdateQuery[T]{
+		Query: *q,
+	}
+
+}
+
 func (query *Query[T]) columnByName(columnName string) (Column, error) {
 	for _, column := range query.origin.Columns() {
 		if column.Name == columnName {

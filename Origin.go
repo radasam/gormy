@@ -1,8 +1,9 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type origin struct {
@@ -46,7 +47,7 @@ func (_origin *origin) JoinExpr(originKey string, relation Relation) string {
 	return ""
 }
 
-func (_origin *origin) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (_origin *origin) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 	_origin.parser.Parse(parentRow, key, name, column, sqlType)
 }
 

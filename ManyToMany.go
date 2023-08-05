@@ -1,8 +1,9 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type manyToMany struct {
@@ -66,7 +67,7 @@ func (manytomany *manyToMany) HasJoin() bool {
 	return manytomany.hasJoin
 }
 
-func (manytomany *manyToMany) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (manytomany *manyToMany) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 	manytomany.parser.Parse(parentRow, key, name, column, sqlType)
 }
 

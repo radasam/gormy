@@ -1,8 +1,9 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type oneToOne struct {
@@ -58,43 +59,7 @@ func (onetoone oneToOne) HasJoin() bool {
 	return onetoone.hasJoin
 }
 
-func (onetoone oneToOne) Parser(rowNumber int, repeatRowNumber int, key string, name string, column *sql.ColumnType, sqlType interface{}) {
-
-	if key == onetoone.joinkey {
-		if _, ok := onetoone.values[rowNumber]; !ok {
-			onetoone.values[rowNumber] = map[string]interface{}{}
-		}
-		if z, ok := (sqlType).(*sql.NullBool); ok {
-			onetoone.values[rowNumber][name] = z.Bool
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullString); ok {
-			onetoone.values[rowNumber][name] = z.String
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullInt64); ok {
-			onetoone.values[rowNumber][name] = z.Int64
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullFloat64); ok {
-			onetoone.values[rowNumber][name] = z.Float64
-			return
-		}
-
-		if z, ok := (sqlType).(*sql.NullInt32); ok {
-			onetoone.values[rowNumber][name] = z.Int32
-			return
-		}
-
-		onetoone.values[rowNumber][name] = sqlType
-
-	}
-}
-
-func (onetoone oneToOne) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (onetoone oneToOne) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 	onetoone.parser.Parse(parentRow, key, name, column, sqlType)
 }
 

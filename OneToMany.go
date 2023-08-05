@@ -1,8 +1,9 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type oneToMany struct {
@@ -59,7 +60,7 @@ func (onetomany *oneToMany) HasJoin() bool {
 	return onetomany.hasJoin
 }
 
-func (onetomany *oneToMany) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (onetomany *oneToMany) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 	onetomany.parser.Parse(parentRow, key, name, column, sqlType)
 }
 

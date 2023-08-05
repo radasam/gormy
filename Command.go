@@ -1,8 +1,9 @@
 package gormy
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type Command struct {
@@ -10,7 +11,7 @@ type Command struct {
 	errored     error
 }
 
-func (command *Command) Exec() (sql.Result, error) {
+func (command *Command) Exec() (driver.CommandResult, error) {
 
 	if command.errored != nil {
 		return nil, command.errored

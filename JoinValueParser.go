@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type joinValueParser struct {
@@ -13,7 +15,7 @@ type joinValueParser struct {
 	rowNumber int
 }
 
-func (jvp *joinValueParser) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (jvp *joinValueParser) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 	if strings.HasPrefix(key, jvp.joinkey) {
 		if key == jvp.joinkey {
 			if name == "join_row" {

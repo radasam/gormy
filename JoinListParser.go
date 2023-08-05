@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+
+	"github.com/radasam/gormy/internal/driver"
 )
 
 type joinListParser struct {
@@ -18,7 +20,7 @@ type joinListParser struct {
 	id                  int
 }
 
-func (jlp *joinListParser) Parse(parentRow string, key string, name string, column *sql.ColumnType, sqlType interface{}) {
+func (jlp *joinListParser) Parse(parentRow string, key string, name string, column driver.ColumnType, sqlType interface{}) {
 
 	if strings.HasPrefix(key, jlp.joinkey) {
 		if key == jlp.joinkey {
