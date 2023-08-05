@@ -5,8 +5,12 @@ A postgres ORM for go.
 ## Installation
 
 ```bash
-go get github.com/radasam/gormy
+go get github.com/radasam/gormys
 ```
+
+## Documentation
+
+TODOs
 
 ## Examples
 
@@ -104,3 +108,8 @@ If you already have your tables defined in your database you can import the data
 ```go
 err = gormy.NewImporter("myschema", "./myoutputdir", []string{"ignorethistable"}).Import()
 ```
+
+The imported tables wil appear as structs under the output directory, you can also pass a list of table names you wish to ignore.s
+
+### Planned Features
+- Migrations - store and track schema changes against a database
