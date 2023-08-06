@@ -67,7 +67,6 @@ func (jvp *joinValueParser) Parse(parentRow string, key string, name string, col
 			}
 		}
 	}
-	return
 }
 
 func (jvp *joinValueParser) Row(parentRow string) interface{} {

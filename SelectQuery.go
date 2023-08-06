@@ -9,6 +9,7 @@ type SelectQuery[T any] struct {
 	Query[T]
 	selected        []Column
 	activeRelations []ActiveRelation
+	where           []Statement
 	errored         error
 }
 
@@ -28,9 +29,7 @@ func (query *SelectQuery[T]) Column(columnName string) *SelectQuery[T] {
 
 func (query *SelectQuery[T]) Where(expr string, columnName string, value string) *SelectQuery[T] {
 
-	cleanExpr := strings.ReplaceAll(expr, "?", "%s")
-
-	query.queryString = query.queryString + fmt.Sprintf("WHERE "+cleanExpr+"\r\n", columnName, value)
+	query.where = append(query.where, Statement{expr, columnName, value})
 
 	return query
 }
@@ -121,6 +120,14 @@ func (query *SelectQuery[T]) Exec() ([]T, error) {
 		queryString = strings.ReplaceAll(queryString, fmt.Sprintf("$%s__table_name$", relation.Join.JoinKey()), relation.Join.TableExpr())
 	}
 
+	for i, w := range query.where {
+		if i == 0 {
+			queryString += fmt.Sprintf("WHERE %s", w.ToString())
+		} else {
+			queryString += fmt.Sprintf("AND %s", w.ToString())
+		}
+	}
+
 	if len(query.activeRelations) > 0 {
 		queryString += "ORDER BY jk0__join_row"
 	}
@@ -139,7 +146,11 @@ func (query *SelectQuery[T]) Exec() ([]T, error) {
 
 	sqlParser := newSqlParser(query.Rows, query.origin, rows)
 
-	sqlParser.Parse(&query.Rows)
+	err = sqlParser.Parse(&query.Rows)
+
+	if err != nil {
+		return []T{}, fmt.Errorf("parsing query: %w", err)
+	}
 
 	return query.Rows, nil
 }

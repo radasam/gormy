@@ -87,7 +87,6 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 		}
 
 		for i, column := range columnTypes {
-
 			key := strings.Split(column.Name(), "__")[0]
 			name := strings.Split(column.Name(), "__")[1]
 			sqlparser.origin.Parse(strconv.Itoa(rowNumber), key, name, column, scanArgs[i])
@@ -107,6 +106,8 @@ func (sqlparser *sqlParser[T]) toJson() (string, error) {
 
 func (sqlparser *sqlParser[T]) Parse(rows *T) error {
 	jsonString, err := sqlparser.toJson()
+
+	println(jsonString)
 
 	if err != nil {
 		return err
